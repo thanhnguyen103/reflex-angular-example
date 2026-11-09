@@ -30,7 +30,7 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
-.angular/cache/
+**/.angular/cache/
 .sass-cache/
 connect.lock
 coverage/
@@ -51,4 +51,4 @@ Thumbs.db
 test-results/
 playwright-report/
 blob-report/
-playwright/.cache/
+**/playwright/.cache/
