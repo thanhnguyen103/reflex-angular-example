@@ -1,0 +1,73 @@
+<main class="mx-auto mt-8 max-w-lg px-4">
+  <header class="flex items-center justify-between text-sm text-neutral-500">
+    <span>Signed in as <strong class="text-neutral-900 dark:text-neutral-100">{{ auth.session()?.username }}</strong></span>
+    <button type="button" class="btn" (click)="signOut()">Sign out</button>
+  </header>
+  <h1 class="my-6 text-center text-5xl font-extralight">todos</h1>
+
+  <form (submit)="$event.preventDefault(); todoService.add(draft.value); draft.value = ''">
+    <input #draft class="field" aria-label="New todo" placeholder="What needs to be done?" [disabled]="todoService.loading()" autofocus />
+  </form>
+
+  @if (todoService.error(); as error) {
+    <p role="alert" class="alert mt-3">{{ error }}</p>
+  }
+
+  @if (todoService.loading() && !todoService.error()) {
+    <p class="mt-4 text-center text-neutral-500">Loading…</p>
+  } @else if (todoService.todos().length) {
+    <div class="mt-4 rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <label class="flex items-center gap-3 border-b border-neutral-200 px-3 py-2 text-sm text-neutral-500 dark:border-neutral-800">
+        <input type="checkbox" class="size-4 accent-neutral-900 dark:accent-neutral-100" [checked]="remaining() === 0" (change)="todoService.toggleAll()" />
+        Mark all as complete
+      </label>
+
+      <ul class="divide-y divide-neutral-200 dark:divide-neutral-800">
+        @for (t of visible(); track t.id) {
+          <li class="flex items-center gap-3 px-3 py-2">
+            <input
+              type="checkbox"
+              class="size-4 accent-neutral-900 dark:accent-neutral-100"
+              [checked]="t.done"
+              (change)="todoService.toggle(t.id)"
+              [attr.aria-label]="'Toggle ' + t.title"
+            />
+            <input
+              class="flex-1 bg-transparent outline-none focus:underline"
+              [class.line-through]="t.done"
+              [class.text-neutral-400]="t.done"
+              [value]="t.title"
+              (change)="todoService.rename(t.id, $any($event.target).value)"
+              [attr.aria-label]="'Edit ' + t.title"
+            />
+            <button
+              type="button"
+              class="cursor-pointer px-1 text-lg leading-none text-neutral-400 hover:text-red-600"
+              (click)="todoService.remove(t.id)"
+              [attr.aria-label]="'Delete ' + t.title"
+            >
+              ×
+            </button>
+          </li>
+        }
+      </ul>
+
+      <footer class="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 px-3 py-2 text-sm text-neutral-500 dark:border-neutral-800">
+        <span>{{ remaining() }} {{ remaining() === 1 ? 'item' : 'items' }} left</span>
+        <nav aria-label="Filter" class="flex gap-1">
+          @for (f of filters; track f) {
+            <button
+              type="button"
+              class="cursor-pointer rounded px-2 py-1 capitalize hover:bg-neutral-100 aria-pressed:bg-neutral-900 aria-pressed:text-white dark:hover:bg-neutral-800 dark:aria-pressed:bg-neutral-100 dark:aria-pressed:text-neutral-900"
+              [attr.aria-pressed]="filter() === f"
+              (click)="filter.set(f)"
+            >
+              {{ f }}
+            </button>
+          }
+        </nav>
+        <button type="button" class="cursor-pointer hover:underline" (click)="todoService.clearCompleted()">Clear completed</button>
+      </footer>
+    </div>
+  }
+</main>
